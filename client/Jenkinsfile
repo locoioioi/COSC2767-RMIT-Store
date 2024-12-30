@@ -45,5 +45,8 @@ pipeline {
         failure {
             echo 'React.js build failed. Check the logs for more details.'
         }
+        always {
+            cleanWs()
+        }
     }
 }
