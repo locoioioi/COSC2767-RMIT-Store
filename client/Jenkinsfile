@@ -53,7 +53,7 @@ pipeline {
                         def customImage = docker.build("${IMAGE_NAME}:latest")
 
                         // login 
-                        docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
+                        docker.withRegistry('https://index.docker.io/v1/', 'locoioioi_dockerhub_token') {
                             // Push the Docker image
                             customImage.push()
                         }
