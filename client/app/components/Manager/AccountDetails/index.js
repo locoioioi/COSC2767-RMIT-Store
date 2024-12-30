@@ -18,6 +18,7 @@ const AccountDetails = props => {
 
   const handleSubmit = event => {
     event.preventDefault();
+    // Update profile
     updateProfile();
   };
 
