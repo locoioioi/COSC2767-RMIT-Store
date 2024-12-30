@@ -1,7 +1,8 @@
 pipeline {
     agent any
     tools {
-        nodejs "Node" 
+        nodejs "Node"
+        dockerTool 'Docker'
     }
 
     environment {
@@ -42,28 +43,34 @@ pipeline {
             }
         }
 
-        stage('Build and Push Docker Image') {
+        stage("test docker") {
             steps {
-                dir('client') {
-                    script {
-                        // Build the Docker image
-                        sh """
-                        docker build -t ${IMAGE_NAME}:latest .
-                        """
-
-                        // Login to Docker Hub
-                        sh """
-                        echo ${DOCKER_HUB_CREDENTIALS_PSW} | docker login -u ${DOCKER_HUB_CREDENTIALS_USR} --password-stdin
-                        """
-
-                        // Push the Docker image to Docker Hub
-                        sh """
-                        docker push ${IMAGE_NAME}:latest
-                        """
-                    }
-                }
+                sh 'docker --version'
             }
         }
+
+        // stage('Build and Push Docker Image') {
+        //     steps {
+        //         dir('client') {
+        //             script {
+        //                 // Build the Docker image
+        //                 sh """
+        //                 docker build -t ${IMAGE_NAME}:latest .
+        //                 """
+
+        //                 // Login to Docker Hub
+        //                 sh """
+        //                 echo ${DOCKER_HUB_CREDENTIALS_PSW} | docker login -u ${DOCKER_HUB_CREDENTIALS_USR} --password-stdin
+        //                 """
+
+        //                 // Push the Docker image to Docker Hub
+        //                 sh """
+        //                 docker push ${IMAGE_NAME}:latest
+        //                 """
+        //             }
+        //         }
+        //     }
+        // }
     }
 
     post {
