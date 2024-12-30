@@ -6,7 +6,6 @@ pipeline {
     }
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('locoioioi_dockerhub_token') // Jenkins credential ID for Docker Hub
         IMAGE_NAME = 'locoioioi/cosc2767-rmit-store-client' // Docker image name
     }
 
