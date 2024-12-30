@@ -1,12 +1,14 @@
 pipeline {
-    agent any
-    tools {
-        nodejs "Node"
-        dockerTool 'Docker'
+    agent {
+        docker {
+            image 'node:14' // Base Docker image to use for Node.js
+            label 'docker-agent' // Docker agent label
+            registryUrl 'https://index.docker.io/v1/' // Default Docker Hub URL
+            registryCredentialsId 'docker-account' // Jenkins credentials ID for Docker Hub
+        }
     }
 
     environment {
-        DOCKER_HUB_CREDENTIALS = credentials('docker-account') // Jenkins credential ID for Docker Hub
         IMAGE_NAME = 'locoioioi/cosc2767-rmit-store-client' // Docker image name
     }
 
@@ -33,39 +35,13 @@ pipeline {
             }
         }
 
-        stage('Archive Artifacts') {
-            steps {
-                archiveArtifacts artifacts: 'client/dist/**/*', allowEmptyArchive: false
-            }
-        }
-
-        stage("Test Docker") {
-            steps {
-                sh 'docker --version'
-            }
-        }
-
         stage('Build and Push Docker Image') {
             steps {
-                dir('client') {
-                    script {
-                        // Build the Docker image
-                        sh """
-                        docker build -t ${IMAGE_NAME}:latest .
-                        """
+                script {
+                    def customImage = docker.build("${IMAGE_NAME}:latest", "client") 
 
-                        // Secure Docker Login
-                        withEnv(["DOCKER_PASSWORD=${DOCKER_HUB_CREDENTIALS_PSW}"]) {
-                            sh """
-                            echo \$DOCKER_PASSWORD | docker login -u ${DOCKER_HUB_CREDENTIALS_USR} --password-stdin
-                            """
-                        }
-
-                        // Push Docker Image
-                        sh """
-                        docker push ${IMAGE_NAME}:latest
-                        """
-                    }
+                    // Push the image to the Docker registry
+                    customImage.push()
                 }
             }
         }
