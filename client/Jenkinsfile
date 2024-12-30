@@ -18,16 +18,32 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                dir('client') {
-                    sh 'npm ci'
+                cache(caches: [
+                    arbitraryFileCache(
+                        path: 'client/node_modules',
+                        cacheValidityDecidingFile: 'client/package-lock.json',
+                        compressionMethod: 'TARGZ'
+                    )
+                ]) {
+                    dir('client') {
+                        sh 'npm ci'
+                    }
                 }
             }
         }
 
+
         stage('Build React App') {
             steps {
-                dir('client') {
-                    sh 'npm run build'
+                cache(caches: [
+                    arbitraryFileCache(
+                        path: 'client/dist',
+                        cacheValidityDecidingFile: 'client/app/**/*, client/public/**/*, client/.env, client/.env.example, client/package.json'
+                    )
+                ]) {
+                    dir('client') {
+                        sh 'npm run build'
+                    }
                 }
             }
         }
