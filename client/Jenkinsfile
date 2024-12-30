@@ -6,7 +6,7 @@ pipeline {
     }
 
     environment {
-        DOCKER_HUB_CREDENTIALS = credentials('docker-account') // Jenkins credential ID for Docker Hub
+        DOCKERHUB_CREDENTIALS = credentials('locoioioi_dockerhub_token') // Jenkins credential ID for Docker Hub
         IMAGE_NAME = 'locoioioi/cosc2767-rmit-store-client' // Docker image name
     }
 
@@ -50,7 +50,13 @@ pipeline {
                 dir('client') {
                     script {
                         // Build the Docker image
-                        docker.build("${IMAGE_NAME}:latest")
+                        def customImage = docker.build("${IMAGE_NAME}:latest")
+
+                        // login 
+                        docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
+                            // Push the Docker image
+                            customImage.push()
+                        }
                     }
                 }
             }
