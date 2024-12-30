@@ -18,7 +18,7 @@ const AccountDetails = props => {
 
   const handleSubmit = event => {
     event.preventDefault();
-    // Update profile
+    // Update profile !!! and it trigger webhooks
     updateProfile();
   };
 
