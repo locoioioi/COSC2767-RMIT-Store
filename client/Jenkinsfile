@@ -49,28 +49,28 @@ pipeline {
             }
         }
 
-        // stage('Build and Push Docker Image') {
-        //     steps {
-        //         dir('client') {
-        //             script {
-        //                 // Build the Docker image
-        //                 sh """
-        //                 docker build -t ${IMAGE_NAME}:latest .
-        //                 """
+        stage('Build and Push Docker Image') {
+            steps {
+                dir('client') {
+                    script {
+                        // Build the Docker image
+                        sh """
+                        docker build -t ${IMAGE_NAME}:latest .
+                        """
 
-        //                 // Login to Docker Hub
-        //                 sh """
-        //                 echo ${DOCKER_HUB_CREDENTIALS_PSW} | docker login -u ${DOCKER_HUB_CREDENTIALS_USR} --password-stdin
-        //                 """
+                        // Login to Docker Hub
+                        sh """
+                        echo ${DOCKER_HUB_CREDENTIALS_PSW} | docker login -u ${DOCKER_HUB_CREDENTIALS_USR} --password-stdin
+                        """
 
-        //                 // Push the Docker image to Docker Hub
-        //                 sh """
-        //                 docker push ${IMAGE_NAME}:latest
-        //                 """
-        //             }
-        //         }
-        //     }
-        // }
+                        // Push the Docker image to Docker Hub
+                        sh """
+                        docker push ${IMAGE_NAME}:latest
+                        """
+                    }
+                }
+            }
+        }
     }
 
     post {
