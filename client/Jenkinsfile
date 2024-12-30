@@ -2,11 +2,11 @@ pipeline {
     agent any
     tools {
         nodejs "Node" 
-        docker "Docker"
     }
 
     environment {
         DOCKER_HUB_CREDENTIALS = credentials('docker-account') // Jenkins credential ID for Docker Hub
+        IMAGE_NAME = 'locoioioi/cosc2767-rmit-store-client' // Docker image name
     }
 
     stages {
@@ -42,19 +42,25 @@ pipeline {
             }
         }
 
-        stage('Build and deploy to docker hub') {
+        stage('Build and Push Docker Image') {
             steps {
-                dir ('client') {
-                    // Build the docker image
-                    sh 'docker build -t locoioioi/cosc2767-rmit-store-client .'
-                    
-                    // Login to Docker Hub
-                    sh """
-                    echo ${DOCKER_HUB_CREDENTIALS} | docker login -u ${DOCKER_HUB_CREDENTIALS} --password-stdin
-                    """
+                dir('client') {
+                    script {
+                        // Build the Docker image
+                        sh """
+                        docker build -t ${IMAGE_NAME}:latest .
+                        """
 
-                    // Push the image to Docker Hub
-                    sh 'docker push locoioioi/cosc2767-rmit-store-client'
+                        // Login to Docker Hub
+                        sh """
+                        echo ${DOCKER_HUB_CREDENTIALS_PSW} | docker login -u ${DOCKER_HUB_CREDENTIALS_USR} --password-stdin
+                        """
+
+                        // Push the Docker image to Docker Hub
+                        sh """
+                        docker push ${IMAGE_NAME}:latest
+                        """
+                    }
                 }
             }
         }
@@ -62,10 +68,10 @@ pipeline {
 
     post {
         success {
-            echo 'React.js build completed successfully!'
+            echo 'React.js build and Docker image push completed successfully!'
         }
         failure {
-            echo 'React.js build failed. Check the logs for more details.'
+            echo 'Pipeline failed. Check the logs for more details.'
         }
     }
 }
