@@ -13,7 +13,6 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                // Clone the repository
                 git branch: 'main', url: 'https://github.com/locoioioi/COSC2767-RMIT-Store'
             }
         }
@@ -21,7 +20,6 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 dir('client') {
-                    // Install dependencies
                     sh 'npm ci'
                 }
             }
@@ -30,7 +28,6 @@ pipeline {
         stage('Build React App') {
             steps {
                 dir('client') {
-                    // Run the build script
                     sh 'npm run build'
                 }
             }
@@ -38,12 +35,11 @@ pipeline {
 
         stage('Archive Artifacts') {
             steps {
-                // Save the build output for later use or deployment
                 archiveArtifacts artifacts: 'client/dist/**/*', allowEmptyArchive: false
             }
         }
 
-        stage("test docker") {
+        stage("Test Docker") {
             steps {
                 sh 'docker --version'
             }
@@ -58,12 +54,14 @@ pipeline {
                         docker build -t ${IMAGE_NAME}:latest .
                         """
 
-                        // Login to Docker Hub
-                        sh """
-                        echo ${DOCKER_HUB_CREDENTIALS_PSW} | docker login -u ${DOCKER_HUB_CREDENTIALS_USR} --password-stdin
-                        """
+                        // Secure Docker Login
+                        withEnv(["DOCKER_PASSWORD=${DOCKER_HUB_CREDENTIALS_PSW}"]) {
+                            sh """
+                            echo \$DOCKER_PASSWORD | docker login -u ${DOCKER_HUB_CREDENTIALS_USR} --password-stdin
+                            """
+                        }
 
-                        // Push the Docker image to Docker Hub
+                        // Push Docker Image
                         sh """
                         docker push ${IMAGE_NAME}:latest
                         """
