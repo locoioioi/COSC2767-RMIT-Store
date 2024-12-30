@@ -2,6 +2,11 @@ pipeline {
     agent any
     tools {
         nodejs "Node" 
+        docker "Docker"
+    }
+
+    environment {
+        DOCKER_HUB_CREDENTIALS = credentials('docker-account') // Jenkins credential ID for Docker Hub
     }
 
     stages {
@@ -36,6 +41,23 @@ pipeline {
                 archiveArtifacts artifacts: 'client/dist/**/*', allowEmptyArchive: false
             }
         }
+
+        stage('Build and deploy to docker hub') {
+            steps {
+                dir ('client') {
+                    // Build the docker image
+                    sh 'docker build -t locoioioi/cosc2767-rmit-store-client .'
+                    
+                    // Login to Docker Hub
+                    sh """
+                    echo ${DOCKER_HUB_CREDENTIALS} | docker login -u ${DOCKER_HUB_CREDENTIALS} --password-stdin
+                    """
+
+                    // Push the image to Docker Hub
+                    sh 'docker push locoioioi/cosc2767-rmit-store-client'
+                }
+            }
+        }
     }
 
     post {
@@ -44,9 +66,6 @@ pipeline {
         }
         failure {
             echo 'React.js build failed. Check the logs for more details.'
-        }
-        always {
-            cleanWs()
         }
     }
 }
