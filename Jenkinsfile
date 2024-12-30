@@ -16,7 +16,7 @@ pipeline {
             steps {
                 dir('client') {
                     // Install dependencies
-                    sh 'npm install'
+                    sh 'npm ci'
                 }
             }
         }
